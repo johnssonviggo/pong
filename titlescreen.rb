@@ -1,8 +1,8 @@
 require 'ruby2d'
 
 set title: 'Pong_titlescreen'
-set width: 1920
-set height: 1080
+set width: 800
+set height: 600
 
 class Star
 
@@ -29,6 +29,9 @@ class PlayerSelectScreen
 
     gamemode_text = Text.new('Gamemode Select', size: 50, y: 220)
     gamemode_text.x = (Window.width - gamemode_text.width) /2
+
+    player_text = Text.new('Player 1', size: 50 , y: 375)
+    player_text.x = (Window.width - player_text.width) / 5
   end
 
 
