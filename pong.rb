@@ -1,24 +1,26 @@
-require 'ruby2d'
+  require 'ruby2d'
 
-set width: 800
-set height: 600
+  set title: 'Pong'
+  set width: 800
+  set height: 600
 
 
-class Racket
-  HEIGHT = 150
-  attr_writer :direction
-  def initialize(side, movement_speed)
-    @movement_speed = movement_speed
-    @direction = nil
-    @y = 200
-      if side == :left
-        @x = 60
-      else
-        @x = 720
-      end
-  end
+  class Racket
+    HEIGHT = 150
+    attr_writer :direction
 
-    def move
+    def initialize(side, movement_speed)
+      @movement_speed = movement_speed
+      @direction = nil
+      @y = 200
+        if side == :left
+          @x = 60
+        else
+          @x = 720
+        end
+    end
+
+    def move_racket
       if @direction == :up
         @y = [@y - @movement_speed, 0].max
       elsif @direction == :down
@@ -42,90 +44,150 @@ class Racket
     def max_y
       Window.height - HEIGHT
     end
-end
-
-class Ball
-  HEIGHT = 25
-
-  attr_reader :shape
-
-  def initialize(speed)
-    @x = 400
-    @y = 300
-    @y_velocity = speed
-    @x_velocity = -speed
   end
 
-  def move
-    if hit_bottom? || hit_top?
-      @y_velocity = -@y_velocity
+  class Ball
+    HEIGHT = 25
+
+    attr_reader :shape
+
+    def initialize(speed)
+      @x = 400
+      @y = 300
+      @y_velocity = speed
+      @x_velocity = -speed
     end
-    @x = @x + @x_velocity
-    @y = @y + @y_velocity
+
+    def move_ball
+      if hit_bottom? || hit_top?
+        @y_velocity = -@y_velocity
+      end
+      @x = @x + @x_velocity
+      @y = @y + @y_velocity
+    end
+
+    def draw
+      @shape = Square.new(x: @x, y: @y, size: HEIGHT, color: 'white')
+    end
+
+    def bounce
+      @x_velocity = -@x_velocity
+    end
+
+    private
+
+    def hit_bottom?
+      @y + HEIGHT >= Window.height
+    end
+
+    def hit_top?
+      @y <= 0
+    end
   end
 
-  def draw
-    @shape = Square.new(x: @x, y: @y, size: HEIGHT, color: 'white')
+  class Star
+
+    def initialize
+      @y_velocity = rand(1..4)
+      @shape = Square.new(
+        x: rand(Window.width),
+        y: rand(Window.height),
+        size: rand(3..5),
+        color: 'random')
+    end
+
+    def move
+      @shape.y = (@shape.y + @y_velocity) % Window.height
+    end
   end
 
-  def bounce
-    @x_velocity = -@x_velocity
+  class Player
+      WIDTH = 223
+      HEIGHT = 63
+    def initialize(image, x, y)
+      Sprite.new(
+        image,
+        width: WIDTH,
+        height: HEIGHT,
+        x: x,
+        y: y
+      )
+    end
   end
 
-  private
+  class PlayerSelectScreen
+    def initialize
+      @stars = Array.new(100).map { Star.new }
 
-  def hit_bottom?
-    @y + HEIGHT >= Window.height
+      title_text = Text.new('Pong', size: 100, y: 100)
+      title_text.x = (Window.width - title_text.width) /2
+
+      gamemode_text = Text.new('Gamemode Select', size: 50, y: 220)
+      gamemode_text.x = (Window.width - gamemode_text.width) /2
+
+      @players = [
+        Player.new('better_player1_wb.png', Window.width * (1/4.0) - Player::WIDTH / 2, 375), #float på ena för annars tror ruby det är noll
+        Player.new('player_2.png', Window.width * (3/4.0) - Player::WIDTH / 2, 375)
+      ]
+    end
+
+    def update_stars
+      if Window.frames % 2 == 0
+        @stars.each { |star| star.move}
+      end
+    end
   end
 
-  def hit_top?
-    @y <= 0
+  player_1 = Racket.new(:left, 5)
+  player_2 = Racket.new(:right, 5)
+  ball = Ball.new (4)
+  star = Star.new
+
+  player_select_screen = PlayerSelectScreen.new
+
+
+  update do
+
+    star.move
+    player_select_screen.update_stars
+
+    if player_1.hit_ball?(ball) || player_2.hit_ball?(ball)
+      ball.bounce
+    end
+
+    star.move
+    star.draw
+
+    player_1.move_racket
+    player_1.draw
+
+    player_2.move_racket
+    player_2.draw
+
+    ball.move_ball
+    ball.draw
+
   end
 
-end
-
-player_1 = Racket.new(:left, 5)
-player_2 = Racket.new(:right, 5)
-ball = Ball.new (4)
-
-update do
-  clear
-
-  if player_1.hit_ball?(ball) || player_2.hit_ball?(ball)
-    ball.bounce
+  on :key_down do |event|
+    if event.key == 'up'
+      player_2.direction = :up
+    elsif event.key == 'down'
+      player_2.direction = :down
+    end
+  end
+  on :key_up do |event|
   end
 
-  player_1.move
-  player_1.draw
-
-  player_2.move
-  player_2.draw
-
-  ball.move
-  ball.draw
-end
-
-on :key_down do |event|
-  if event.key == 'up'
-    player_2.direction = :up
-  elsif event.key == 'down'
-    player_2.direction = :down
+  on :key_down do |event|
+    if event.key == 'w'
+      player_1.direction = :up
+    elsif event.key == 's'
+      player_1.direction = :down
+    end
   end
-end
-on :key_up do |event|
-end
 
-on :key_down do |event|
-  if event.key == 'w'
-    player_1.direction = :up
-  elsif event.key == 's'
-    player_1.direction = :down
+  on :key_up do |event|
   end
-end
 
-on :key_up do |event|
-end
-
-
-
-show
+  show

@@ -49,7 +49,6 @@ class PlayerSelectScreen
     ]
   end
 
-
   def update
     if Window.frames % 2 == 0
     @stars.each { |star| star.move }
