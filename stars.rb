@@ -23,7 +23,7 @@ class Star
 end
 
 class Player
-  HEIGHT = 150
+  HEIGHT = 90
   attr_writer :direction
   def initialize(side, movement_speed)
     @direction = nil
@@ -98,15 +98,16 @@ class StarManager
 end
 
 star_manager = StarManager.new
-player = Player.new(:left, 5)
-
+player_left = Player.new(:left, 5)
+player_right = Player.new(:right, 5)
 
 update do
 
   star_manager.update
   star_manager.draw
 
-  player.move
+  player_left.move
+  player_right.move
 end
 
 on :key_down do |event|
@@ -117,6 +118,12 @@ on :key_down do |event|
   end
 end
 
-
+on :key_down do |event|
+  if event.key == 'up'
+    @direction = :up
+  elsif event.key == 'down'
+    @direction = :down
+  end
+end
 
 show
