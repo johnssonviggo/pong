@@ -22,66 +22,76 @@ class Star
   end
 end
 
+# class Player
+#   HEIGHT = 90
+#   attr_writer :direction
+
+#   def initialize(side, movement_speed)
+#     @direction = nil
+#     @movement_speed = movement_speed
+#     @y = 200
+#       if side == :left
+#         @x = 60
+#       else
+#         @x = 720
+#       end
+#       @paddle = Rectangle.new(x: @x , y: @y,
+#       width: 25 , height: HEIGHT,
+#       color: 'white')
+#       @x_speed = 0
+#       @y_speed = 0
+#   end
+
+#   def move
+#     if @direction == :up
+#       @y = [@y - @movement_speed, 0].max
+#     elsif @direction == :down
+#       @y = [@y + @movement_speed, max_y].min
+#     end
+
+#   @paddle.y = @y
+#   end
+
+
+#   private
+
+#   def max_y
+#     Window.height - HEIGHT
+#   end
+# end
+
 class Player
   HEIGHT = 90
   attr_writer :direction
-
   def initialize(side, movement_speed)
-    @direction = nil
     @movement_speed = movement_speed
+    @direction = nil
     @y = 200
       if side == :left
         @x = 60
       else
         @x = 720
       end
-      @paddle = Rectangle.new(x: @x , y: @y,
-      width: 25 , height: HEIGHT,
-      color: 'white')
-      @x_speed = 0
-      @y_speed = 0
   end
 
-  def move
-    if @direction == :up
-      @y = [@y - @movement_speed, 0].max
-    elsif @direction == :down
-      @y = [@y + @movement_speed, max_y].min
+    def move
+      if @direction == :up
+        @y = [@y - @movement_speed, 0].max
+      elsif @direction == :down
+        @y = [@y + @movement_speed, max_y].min
+      end
     end
 
-  @paddle.y = @y
-  end
+    def draw
+      @shape = Rectangle.new(x: @x , y: @y, width: 25 , height: HEIGHT, color: 'white')
+    end
 
+    private
 
-  private
-
-  def max_y
-    Window.height - HEIGHT
-  end
+    def max_y
+      Window.height - HEIGHT
+    end
 end
-
-# class Player
-#   def initialize
-#     @shape = Square.new(
-#       x: Window.width / 2,
-#       y: Window.height - 50,
-#       size: 20,
-#       color: 'white')
-#     @x_velocity = 1
-#   end
-
-#   def move_left
-#     @shape.x -= @x_velocity if @shape.x - @x_velocity >= 0
-#   end
-
-#   def move_right
-#     @shape.x += @x_velocity if @shape.x + @x_velocity + @shape.size <= Window.width
-#   end
-
-#   def draw
-#     @shape.add
-#   end
-# end
 
 class StarManager
   def initialize
@@ -97,19 +107,19 @@ class StarManager
   end
 end
 
-class PlayerManager
-  # Correct the class name to match the instantiation later
-  def initialize
-    @players = [Player.new(:left, 5), Player.new(:right, 5)]
-  end
+# class PlayerManager
+#   # Correct the class name to match the instantiation later
+#   def initialize
+#     @players = [Player.new(:left, 5), Player.new(:right, 5)]
+#   end
 
-  def update
-    @players.each(&:move)
-  end
-end
+#   def update
+#     @players.each(&:move)
+#   end
+# end
 
 star_manager = StarManager.new
-player_manager = PlayerManager.new  # Corrected the variable name
+# player_manager = PlayerManager.new  # Corrected the variable name
 player_left = Player.new(:left, 5)
 player_right = Player.new(:right, 5)
 
@@ -120,10 +130,11 @@ update do
   star_manager.update
   star_manager.draw
 
-  player_manager.update
+  player_right.move
+  player_right.draw
 
   player_left.move
-  player_right.move
+  player_left.draw
 end
 
 on :key_down do |event|
