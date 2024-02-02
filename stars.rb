@@ -25,6 +25,7 @@ end
 class Player
   HEIGHT = 90
   attr_writer :direction
+
   def initialize(side, movement_speed)
     @direction = nil
     @movement_speed = movement_speed
@@ -41,17 +42,16 @@ class Player
       @y_speed = 0
   end
 
-  def draw
-    @shape.add
-  end
-
   def move
     if @direction == :up
       @y = [@y - @movement_speed, 0].max
     elsif @direction == :down
       @y = [@y + @movement_speed, max_y].min
     end
+
+  @paddle.y = @y
   end
+
 
   private
 
@@ -97,14 +97,30 @@ class StarManager
   end
 end
 
+class PlayerManager
+  # Correct the class name to match the instantiation later
+  def initialize
+    @players = [Player.new(:left, 5), Player.new(:right, 5)]
+  end
+
+  def update
+    @players.each(&:move)
+  end
+end
+
 star_manager = StarManager.new
+player_manager = PlayerManager.new  # Corrected the variable name
 player_left = Player.new(:left, 5)
 player_right = Player.new(:right, 5)
 
 update do
 
+  clear
+
   star_manager.update
   star_manager.draw
+
+  player_manager.update
 
   player_left.move
   player_right.move
@@ -112,17 +128,21 @@ end
 
 on :key_down do |event|
   if event.key == 'w'
-    @direction = :up
+    player_left.direction = :up
   elsif event.key == 's'
-    @direction = :down
+    player_left.direction = :down
+  elsif event.key == 'up'
+    player_right.direction = :up
+  elsif event.key == 'down'
+    player_right.direction = :down
   end
 end
 
-on :key_down do |event|
-  if event.key == 'up'
-    @direction = :up
-  elsif event.key == 'down'
-    @direction = :down
+on :key_up do |event|
+  # Reset direction when the key is released
+  if ['w', 's', 'up', 'down'].include?(event.key)
+    player_left.direction = nil
+    player_right.direction = nil
   end
 end
 
