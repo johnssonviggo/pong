@@ -1,5 +1,7 @@
 require 'ruby2d'
 
+
+
 set width: 800
 set height: 600
 
@@ -31,8 +33,10 @@ class Racket
     end
 
     def hit_ball?(ball)
-      ball.shape && [[ball.shape.x1, ball.shape.y1], [ball.shape.x2, ball.shape.y2],
-      [ball.shape.x3, ball.shape.y3], [ball.shape.x4, ball.shape.y4]].any? do |coordinates|
+      ball.shape && [[ball.shape.x1, ball.shape.y1],
+       [ball.shape.x2, ball.shape.y2],
+      [ball.shape.x3, ball.shape.y3],
+       [ball.shape.x4, ball.shape.y4]].any? do |coordinates|
         @shape.contains?(coordinates[0], coordinates[1])
       end
     end
