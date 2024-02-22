@@ -61,65 +61,57 @@
     @paddle.y = @y
     end
 
-    # Funktion som kollar om spelaren träffar bollen
-    def hit_ball?(ball_manager)
-      ball_manager.shape && [
-        [ball_manager.shape.x1, ball_manager.shape.y1],
-        [ball_manager.shape.x2, ball_manager.shape.y2],
-        [ball_manager.shape.x3, ball_manager.shape.y3],
-        [ball_manager.shape.x4, ball_manager.shape.y4]
-        ].any? do |coordinates|
-       @shape.contains?(coordinates[0], coordinates[1])
-     end
-   end
-
-    private
-
-    # Funktion för att beräkna maximala y-koordinaten för att hålla
-    # paddeln inom fönstret
-    def max_y
-      Window.height - HEIGHT
+    def hit_ball?(ball)
+      return @paddle.contains?(ball.shape.x1, ball.shape.y1) || @paddle.contains?(ball.shape.x2, ball.shape.y2) || @paddle.contains?(ball.shape.x3, ball.shape.y3) || @paddle.contains?(ball.shape.x4, ball.shape.y4)
     end
+
+  private
+
+  # Funktion för att beräkna maximala y-koordinaten för att hålla
+  # paddeln inom fönstret
+  def max_y
+    Window.height - HEIGHT
   end
+end
 
 
-  class Ball
-    HEIGHT = 25 # Bollens storlek
+class Ball
+  HEIGHT = 25 # Bollens storlek
 
-    attr_reader :shape  # Läser formen på bollen
+  attr_reader :x1, :y1, :x2, :y2, :x3, :y3, :x4, :y4, :shape  # Läser formen på bollen
 
-    def initialize(speed)
-      @x = 400
-      @y = 300
-      @y_velocity = speed
-      @x_velocity = -speed
+  def initialize(speed)
+    @x = 400
+    @y = 300
+    @y_velocity = speed
+    @x_velocity = -speed
 
-      @ball = Square.new(
-        x: @x, y: @y,
+    @shape = Square.new(
+      x: @x, y: @y,
         size: HEIGHT,
         color: 'white')
-    end
-
-
-    # För att flytta bollen
-    def move
-      if hit_bottom? || hit_top?
-        @y_velocity = -@y_velocity
       end
-      @x = @x + @x_velocity
-      @y = @y + @y_velocity
-      @ball.x = @x
-      @ball.y = @y
-    end
 
-    # Funktion till att bollen studsar
+
+      # För att flytta bollen
+      def move
+        if hit_bottom? || hit_top?
+          @y_velocity = -@y_velocity
+        end
+        @x = @x + @x_velocity
+        @y = @y + @y_velocity
+        @shape.x = @x
+        @shape.y = @y
+      end
+
+       # Funktion till att bollen studsar
     def bounce
       @x_velocity = -@x_velocity
     end
 
-    private
+      private
 
-    # Ifall bollen träffar botten av skärmen
+      # Ifall bollen träffar botten av skärmen
     def hit_bottom?
       @y + HEIGHT >= Window.height
     end
@@ -131,19 +123,6 @@
 
   end
 
-  # Hantering av bollen
-  class BallManager
-    attr_reader :shape
-
-    def initialize
-      @ball = [Ball.new(4)]
-    end
-
-    def update
-      @ball.each(&:move)
-    end
-
-  end
 
 
   # Hantering av stjärnorna
@@ -162,28 +141,28 @@
   end
 
   star_manager = StarManager.new
-  player_right = Player.new(:left, 5)
-  player_left = Player.new(:right, 5)
-  ball_manager = BallManager.new
+  player_right = Player.new(:left, 7)
+  player_left = Player.new(:right, 7)
+  # ball_manager = BallManager.new
+  ball = Ball.new(4)
 
 
 
   update do
 
-    if player_left.hit_ball?(ball_manager) || player_right.hit_ball?(ball_manager)
+    if player_left.hit_ball?(ball) || player_right.hit_ball?(ball)
       ball.bounce
     end
-
     player_left.move
     player_right.move
+    ball.move
 
     star_manager.update
-    ball_manager.update
 
   end
 
   # Så att spelaren kan flytta sig upp och ner
-  on :key_down do |event|
+  on :key_held do |event|
     if event.key == 'up'
       player_left.direction = :up
     elsif event.key == 'down'
@@ -225,6 +204,32 @@
   #   end
   # end
 
+  # Hantering av bollen
+  # class BallManager
+  #   attr_reader :shape
+
+  #   def initialize
+  #     @ball = Ball.new(4)
+  #   end
+
+  #   def update
+  #     @ball.move
+  #   end
+
+  # end
+
   # ball.move
+
+  # Funktion som kollar om spelaren träffar bollen
+  #   def hit_ball?(ball_manager)
+  #     ball_manager.shape && [
+    #       [ball_manager.shape.x1, ball_manager.shape.y1],
+  #       [ball_manager.shape.x2, ball_manager.shape.y2],
+  #       [ball_manager.shape.x3, ball_manager.shape.y3],
+  #       [ball_manager.shape.x4, ball_manager.shape.y4]
+  #       ].any? do |coordinates|
+  #      @shape.contains?(coordinates[0], coordinates[1])
+  #    end
+  #  end
 
   #player_manager.update
